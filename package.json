@@ -1,0 +1,14 @@
+{
+    "name": "all-in-one-readme-profile-states",
+    "version": "1.0.0",
+    "private": true,
+    "description": "SVG profile cards for GitHub READMEs, deployed on Vercel.",
+    "type": "module",
+    "engines": {
+        "node": "22.x"
+    },
+    "scripts": {
+        "test": "node --test"
+    },
+    "license": "MIT"
+}

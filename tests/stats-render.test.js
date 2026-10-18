@@ -76,3 +76,22 @@ test('no external references other than the SVG namespace', () => {
     assert.deepEqual(urls, ['http://www.w3.org/2000/svg']);
     assert.ok(!/href=|@import/i.test(svg));
 });
+
+test('rank_icon=github draws the GitHub mark instead of the rank letter', () => {
+    const letter = render({ user: 'ada' });
+    assert.ok(letter.includes('font-size="26"'));
+
+    const icon = render({ user: 'ada', rank_icon: 'github' });
+    assert.ok(!icon.includes('font-size="26"'));
+    assert.ok(icon.includes('viewBox="0 0 16 16"><path fill="#2f80ed"'));
+    assert.ok(icon.includes('rank ' + calculateRank(stats).level)); // aria-label keeps the rank
+
+    const hyphen = render({ user: 'ada', 'rank-icon': 'GitHub' });
+    assert.equal(hyphen, icon);
+});
+
+test('rank_icon rejects unknown values and is ignored with hide_rank', () => {
+    assert.throws(() => render({ user: 'ada', rank_icon: 'star' }), /Invalid rank_icon/);
+    const svg = render({ user: 'ada', rank_icon: 'github', hide_rank: 'true' });
+    assert.ok(!svg.includes('<circle'));
+});

@@ -1,5 +1,6 @@
 import { CardError } from '../shared/svg.js';
 import { parseList, parseNumber, parseStartYear } from '../shared/params.js';
+import { parseDateFormat } from '../shared/dateformat.js';
 
 export const CARD_WIDTH = { def: 495, min: 300, max: 1000 };
 export const CARD_HEIGHT = { def: 195, min: 150, max: 400 };
@@ -34,5 +35,6 @@ export function parseStreakOptions(params) {
         mode,
         excludeDays: parseExcludeDays(q.exclude_days),
         cardHeight: parseNumber(q.card_height, 'card_height', CARD_HEIGHT),
+        dateFormat: parseDateFormat(q.date_format), // undefined = default "Mon D, YYYY"
     };
 }

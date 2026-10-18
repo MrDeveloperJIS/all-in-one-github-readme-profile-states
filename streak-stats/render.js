@@ -1,4 +1,5 @@
 import { CardError, escapeXml, fontStack, formatNumber } from '../shared/svg.js';
+import { formatWithParts } from '../shared/dateformat.js';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -8,18 +9,22 @@ const RING_GAP = 30; // px gap at the top of the ring, where the flame sits
 const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
 const FLAME = 'M8 0C8 3 4 5 4 9.5A4 4 0 0 0 12 9.5C12 7.5 11 6.5 10.2 5.6C10.2 7 9.3 7.8 8.6 7.8C9 5 8.8 2.5 8 0Z';
 
-/** 'YYYY-MM-DD' -> 'Mon D, YYYY' (year omitted when it is the current year). */
-export function formatDay(key, now = new Date()) {
+/**
+ * 'YYYY-MM-DD' -> text. With `parts` (from date_format) the user's pattern is used as it is.
+ * Without it: 'Mon D, YYYY', year omitted when it is the current year.
+ */
+export function formatDay(key, now = new Date(), parts) {
+    if (parts) return formatWithParts(key, parts);
     const [year, month, day] = String(key).split('-').map(Number);
     const base = `${MONTHS[month - 1]} ${day}`;
     return year === now.getUTCFullYear() ? base : `${base}, ${year}`;
 }
 
-function rangeText(start, end, now) {
+function rangeText(start, end, now, parts) {
     if (!start) return '';
-    if (end === 'present') return `${formatDay(start, now)} - Present`;
-    if (!end || end === start) return formatDay(start, now);
-    return `${formatDay(start, now)} - ${formatDay(end, now)}`;
+    if (end === 'present') return `${formatDay(start, now, parts)} - Present`;
+    if (!end || end === start) return formatDay(start, now, parts);
+    return `${formatDay(start, now, parts)} - ${formatDay(end, now, parts)}`;
 }
 
 /** Font size that keeps `text` inside `maxWidth` (rough 0.62em per character). */
@@ -40,20 +45,20 @@ export function renderStreak({ result, params, options, now = new Date() }) {
             key: 'total',
             label: 'Total Contributions',
             value: result.total,
-            range: rangeText(result.firstDate, 'present', now),
+            range: rangeText(result.firstDate, 'present', now, options.dateFormat),
         },
         {
             key: 'current',
             label: 'Current Streak',
             value: result.current.length,
-            range: result.current.length > 0 ? rangeText(result.current.start, 'present', now) : '',
+            range: result.current.length > 0 ? rangeText(result.current.start, 'present', now, options.dateFormat) : '',
             ring: true,
         },
         {
             key: 'longest',
             label: 'Longest Streak',
             value: result.longest.length,
-            range: rangeText(result.longest.start, result.longest.end, now),
+            range: rangeText(result.longest.start, result.longest.end, now, options.dateFormat),
         },
     ].filter((c) => !hide.has(c.key));
 
@@ -64,7 +69,12 @@ export function renderStreak({ result, params, options, now = new Date() }) {
     const labelY = cy + RING_RADIUS + 28;
     const rangeY = labelY + 18;
     const labelSize = Math.min(13, Math.round((colW / 12.5) * 10) / 10);
-    const rangeSize = Math.min(11, Math.round((colW / 15.5) * 10) / 10);
+    // Long custom date formats shrink the range text so it stays inside its column.
+    const longestRange = Math.max(...columns.map((c) => c.range.length), 1);
+    const rangeSize = Math.max(
+        8,
+        Math.min(11, Math.round((colW / 15.5) * 10) / 10, Math.round(((colW - 16) / (longestRange * 0.6)) * 10) / 10)
+    );
 
     const gapDeg = (RING_GAP / RING_CIRCUMFERENCE) * 360;
     const ringDash = `${(RING_CIRCUMFERENCE - RING_GAP).toFixed(2)} ${RING_GAP}`;

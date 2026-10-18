@@ -51,3 +51,7 @@ test('font param and border options apply', () => {
 test('card_width sets the SVG width', () => {
     assert.ok(build({ card_width: '760' }).includes('width="760"'));
 });
+test('weekday labels are three characters', () => {
+    const svg = build({});
+    for (const day of ['Mon', 'Wed', 'Fri']) assert.ok(svg.includes(`>${day}</text>`), day);
+});

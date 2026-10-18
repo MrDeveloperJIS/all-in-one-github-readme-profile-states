@@ -73,3 +73,17 @@ test('exclude_days and mode parsing', () => {
     const params = parseCommon({ user: 'ada', mode: 'monthly' }, { cardWidth: CARD_WIDTH, hide: HIDE_VALUES });
     assert.throws(() => parseStreakOptions(params));
 });
+test('date_format changes how every date is written', () => {
+    const params = parseCommon({ user: 'ada', date_format: 'dd-mmm-yyyy' }, { cardWidth: CARD_WIDTH, hide: HIDE_VALUES });
+    const options = parseStreakOptions(params);
+    const result = {
+        total: 10,
+        firstDate: '2020-05-03',
+        current: { length: 2, start: '2026-03-06' },
+        longest: { length: 5, start: '2024-12-01', end: '2024-12-05' },
+    };
+    const svg = renderStreak({ result, params, options, now: NOW });
+    assert.ok(svg.includes('03-May-2020 - Present'));
+    assert.ok(svg.includes('06-Mar-2026 - Present')); // current year is NOT dropped with a custom format
+    assert.ok(svg.includes('01-Dec-2024 - 05-Dec-2024'));
+});

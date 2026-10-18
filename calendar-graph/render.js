@@ -3,24 +3,24 @@ import { escapeXml, formatNumber } from '../shared/svg.js';
 const CELL = 11; // square size, px
 const GAP = 3;
 const PITCH = CELL + GAP;
-const GUTTER = 28; // weekday label column
+const GUTTER = 34; // weekday label column (fits "Mon", "Wed", "Fri")
 const PAD_X = 10;
 const LEFT_OFFSET = PAD_X + GUTTER;
 const RIGHT_PAD = PAD_X;
-const TOP_PAD = 36; // room for year and month labels
-const BOTTOM_PAD = 8;
+const TOP_PAD = 40; // room for year and month labels (10px above the year, like the left and right padding)
+const BOTTOM_PAD = 10;
 const MIN_DURATION_SEC = 20; // minimum time for the sweep, oldest -> today
 const INITIAL_DELAY_SEC = 1;
 const PAUSE_SEC = 2; // hold on "today" before restarting
 const MIN_WEEKS_BETWEEN_MONTH_LABELS = 3;
-const MONTH_LABEL_LOCAL_Y = 30 - TOP_PAD; // label sits at y=30 once the strip is shifted by TOP_PAD
+const MONTH_LABEL_LOCAL_Y = 34 - TOP_PAD; // label sits at y=34 once the strip is shifted by TOP_PAD
 const STICKY_YEAR_X = PAD_X;
-const STICKY_YEAR_Y = 14;
+const STICKY_YEAR_Y = 18;
 const LABEL_FONT_SIZE = 11;
 const LABEL_OPACITY = 0.75;
 
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-const WEEKDAY_ROW_LABELS = { 1: 'M', 3: 'W', 5: 'F' }; // row index (0 = Sun)
+const WEEKDAY_ROW_LABELS = { 1: 'Mon', 3: 'Wed', 5: 'Fri' }; // row index (0 = Sun)
 
 // GitHub's own contribution scale. Light or dark comes from the theme's mode.
 const SQUARES = {

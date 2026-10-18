@@ -4,7 +4,20 @@ import { parseBool, parseList } from '../shared/params.js';
 export const CARD_WIDTH = { def: 495, min: 450, max: 1000 };
 export const HIDE_VALUES = ['stars', 'commits', 'prs', 'issues', 'contribs'];
 
+export const RANK_ICONS = ['letter', 'github'];
+
 const MAX_TITLE_LENGTH = 60;
+
+/** rank_icon (or rank-icon): 'letter' (default) or 'github'. `default` is accepted as 'letter'. */
+export function parseRankIcon(value) {
+    if (value === undefined || value === null || String(value).trim() === '') return 'letter';
+    const s = String(value).trim().toLowerCase();
+    if (s === 'default') return 'letter';
+    if (!RANK_ICONS.includes(s)) {
+        throw new CardError('Invalid rank_icon: use letter or github.', 'bad_param');
+    }
+    return s;
+}
 
 /** commits_year: 4-digit year, 2005..current year. Undefined when absent. */
 export function parseCommitsYear(value, now = new Date()) {
@@ -27,6 +40,7 @@ export function parseStatsOptions(params) {
         commitsYear: parseCommitsYear(q.commits_year),
         hideTitle: parseBool(q.hide_title, 'hide_title', false),
         hideRank: parseBool(q.hide_rank, 'hide_rank', false),
+        rankIcon: parseRankIcon(q.rank_icon ?? q['rank-icon']),
         customTitle: customTitle || undefined,
         includeAllCommits: parseBool(q.include_all_commits, 'include_all_commits', false),
         excludeRepos: new Set(parseList(q.exclude_repo)), // lowercased

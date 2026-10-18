@@ -4,6 +4,16 @@ All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the project uses [Semantic Versioning](https://semver.org/).
 
+## [1.1.0] - 2026-10-18
+
+### Added
+- Stats card: `rank_icon` param. `rank_icon=github` draws the GitHub icon inside the rank ring instead of the rank letter (`letter` is the default, `rank-icon` is accepted too). Ignored with `hide_rank=true`.
+- Streak card: `date_format` param to choose how dates are written, with tokens `d dd ddd dddd`, `m mm mmm mmmm` and `yy yyyy`, for example `dd-mmm-yyyy` or `dd mm yy`. Without it the default `Mon D, YYYY` style is unchanged. Long patterns shrink the date text to fit the column.
+
+### Changed
+- Calendar card: more padding above the year label (10px, matching the left, right and bottom padding), and weekday labels are now `Mon`, `Wed`, `Fri` instead of `M`, `W`, `F`.
+- README: the Card-specific table now has a Default column, a "How to use the params" section and annotated examples replace the plain example list, and Credits became a References section linking [github-readme-stats](https://github.com/anuraghazra/github-readme-stats) and [github-readme-streak-stats](https://github.com/DenverCoder1/github-readme-streak-stats).
+
 ## [1.0.0] - 2026-10-15
 
 Initial release. Three SVG cards served from one Vercel project, with one token and one shared set of parameters.

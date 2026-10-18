@@ -3,5 +3,16 @@
         "api/*.js": {
             "maxDuration": 30
         }
-    }
+    },
+    "headers": [
+        {
+            "source": "/(.*)",
+            "headers": [
+                {
+                    "key": "X-Robots-Tag",
+                    "value": "noindex, nofollow, noarchive, nosnippet, noimageindex"
+                }
+            ]
+        }
+    ]
 }

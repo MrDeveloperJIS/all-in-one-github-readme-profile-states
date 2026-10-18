@@ -11,7 +11,7 @@ const HEX = /^(?:[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const state = {
     card: 'stats',
     values: {},
-    base: 'https://YOUR-APP.vercel.app',
+    base: /^https?:$/.test(location.protocol) ? location.origin : 'https://YOUR-APP.vercel.app',
 };
 
 function el(tag, attrs = {}, children = []) {

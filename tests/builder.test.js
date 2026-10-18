@@ -28,7 +28,7 @@ test('demo output has no external references (nothing can be fetched)', () => {
 test('the page blocks network access with a CSP and loads only local files', () => {
     const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
     assert.match(html, /connect-src 'none'/);
-    assert.match(html, /img-src data:/);
+    assert.match(html, /img-src 'self' data:/);
     assert.ok(!/(?:src|href)="https?:/i.test(html));
 });
 

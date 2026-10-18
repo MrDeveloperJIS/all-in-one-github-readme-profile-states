@@ -4,6 +4,17 @@ All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the project uses [Semantic Versioning](https://semver.org/).
 
+## [1.2.1] - 2026-10-18
+
+### Added
+- Builder page: `favicon.svg`, and a Content-Security-Policy that now allows images from the same origin (`img-src 'self' data:`) so the icon can load.
+- Keeps the builder page out of search engines: `robots` meta tag, `X-Robots-Tag` header for every response (in `vercel.json`) and a `robots.txt` that disallows crawling.
+- `npm run dev` serves the builder page locally with `npx serve`.
+
+### Changed
+- Node.js is now 24 (`engines` is `24.x`), matching the Vercel project setting.
+- README: local builder instructions use npm instead of Python.
+
 ## [1.2.0] - 2026-10-18
 
 ### Added

@@ -48,13 +48,15 @@ Open the root of your deployed app (`https://YOUR-APP.vercel.app/`) to build a c
 
 The preview is drawn in your browser from made-up sample data, using the same code as the cards. It never calls GitHub or your `/api` endpoints, so using it costs no rate limit. The page also sets a Content-Security-Policy that blocks every network request. Options that change real data (like `exclude_repo`) can't show in the demo, but they are still added to the URL.
 
-To run it locally, serve the project folder with any static server (opening `index.html` as a file doesn't work, because browsers block ES modules from `file://`):
+To run it locally, serve the project folder with a static server (opening `index.html` as a file doesn't work, because browsers block ES modules from `file://`):
 
 ```
-python3 -m http.server 8000
+npm run dev
 ```
 
-then open `http://localhost:8000/`.
+then open `http://localhost:8000/`. This uses `npx serve`, so nothing is added to the project's dependencies. It serves only the builder page, not the `/api` cards.
+
+The page is not meant to be found through search: it has `noindex, nofollow` in a meta tag, `vercel.json` sends an `X-Robots-Tag` header, and `robots.txt` disallows crawling.
 
 ## Parameters
 
@@ -228,7 +230,7 @@ npm test
 
 The builder page is plain static files (`index.html` and `builder/`), with no build step. `builder/meta.js` lists every param, and its defaults come from the same constants the cards use, so a new param needs one entry there.
 
-Node 22 (`engines` is `22.x`), no runtime dependencies. For local runs copy `.env.example` to `.env`. A `.private/` folder is git-ignored for local notes. See [CHANGELOG.md](CHANGELOG.md) for version history.
+Node 24 (`engines` is `24.x`), no runtime dependencies. For local runs copy `.env.example` to `.env`. A `.private/` folder is git-ignored for local notes. See [CHANGELOG.md](CHANGELOG.md) for version history.
 
 ## References
 

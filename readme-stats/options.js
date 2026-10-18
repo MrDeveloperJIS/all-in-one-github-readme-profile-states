@@ -2,19 +2,20 @@ import { CardError } from '../shared/svg.js';
 import { parseBool, parseList } from '../shared/params.js';
 
 export const CARD_WIDTH = { def: 495, min: 450, max: 1000 };
-export const HIDE_VALUES = ['stars', 'commits', 'prs', 'issues', 'contribs'];
+export const HIDE_VALUES = ['stars', 'commits', 'prs', 'issues', 'contribs', 'reviews'];
+export const SHOW_VALUES = ['reviews']; // extra rows that are off by default
 
-export const RANK_ICONS = ['letter', 'github'];
+export const RANK_ICONS = ['letter', 'github', 'percentile'];
 
 const MAX_TITLE_LENGTH = 60;
 
-/** rank_icon (or rank-icon): 'letter' (default) or 'github'. `default` is accepted as 'letter'. */
+/** rank_icon (or rank-icon): 'letter' (default), 'github' or 'percentile'. `default` is accepted as 'letter'. */
 export function parseRankIcon(value) {
     if (value === undefined || value === null || String(value).trim() === '') return 'letter';
     const s = String(value).trim().toLowerCase();
     if (s === 'default') return 'letter';
     if (!RANK_ICONS.includes(s)) {
-        throw new CardError('Invalid rank_icon: use letter or github.', 'bad_param');
+        throw new CardError('Invalid rank_icon: use letter, github or percentile.', 'bad_param');
     }
     return s;
 }
@@ -40,6 +41,7 @@ export function parseStatsOptions(params) {
         commitsYear: parseCommitsYear(q.commits_year),
         hideTitle: parseBool(q.hide_title, 'hide_title', false),
         hideRank: parseBool(q.hide_rank, 'hide_rank', false),
+        showReviews: parseList(q.show).includes('reviews'),
         rankIcon: parseRankIcon(q.rank_icon ?? q['rank-icon']),
         customTitle: customTitle || undefined,
         includeAllCommits: parseBool(q.include_all_commits, 'include_all_commits', false),

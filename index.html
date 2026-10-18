@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src data:; connect-src 'none'; base-uri 'none'; form-action 'none'">
+    <title>Profile cards: URL builder</title>
+    <link rel="stylesheet" href="./builder/style.css">
+</head>
+
+<body>
+    <header>
+        <h1>URL builder</h1>
+        <p>Pick a card, set the options, copy the URL. The preview uses made-up sample data and is drawn in your browser. Nothing is requested from GitHub or from this app's API.</p>
+    </header>
+
+    <main>
+        <section class="controls" aria-label="Options">
+            <div id="tabs" role="tablist" aria-label="Card"></div>
+            <div id="form"></div>
+            <button id="reset" type="button" class="secondary">Reset options</button>
+        </section>
+
+        <aside class="output" aria-label="Preview and URL">
+            <div class="bg-toggle" role="group" aria-label="Preview background">
+                <button type="button" data-bg="light" aria-pressed="true">Light page</button>
+                <button type="button" data-bg="dark" aria-pressed="false">Dark page</button>
+            </div>
+            <div id="stage" data-bg="light"><img id="preview" alt="Card preview with sample data"></div>
+            <p class="hint">Sample data only. Options that change real data (like <code>exclude_repo</code>) can't show here.</p>
+
+            <label class="field" for="base">App URL</label>
+            <input id="base" type="text" autocomplete="off" spellcheck="false">
+
+            <div class="out">
+                <label class="field" for="out-url">URL</label>
+                <textarea id="out-url" readonly rows="3"></textarea>
+                <button type="button" data-copy="out-url">Copy</button>
+            </div>
+            <div class="out">
+                <label class="field" for="out-md">Markdown</label>
+                <textarea id="out-md" readonly rows="3"></textarea>
+                <button type="button" data-copy="out-md">Copy</button>
+            </div>
+            <div class="out">
+                <label class="field" for="out-html">HTML</label>
+                <textarea id="out-html" readonly rows="3"></textarea>
+                <button type="button" data-copy="out-html">Copy</button>
+            </div>
+        </aside>
+    </main>
+
+    <noscript>
+        <p class="hint">This page needs JavaScript.</p>
+    </noscript>
+    <script type="module" src="./builder/app.js"></script>
+</body>
+
+</html>

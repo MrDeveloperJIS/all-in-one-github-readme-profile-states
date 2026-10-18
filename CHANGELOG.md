@@ -4,6 +4,17 @@ All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the project uses [Semantic Versioning](https://semver.org/).
 
+## [1.2.0] - 2026-10-18
+
+### Added
+- Stats card: `rank_icon=percentile` shows the top percentage (for example `TOP 12%`) inside the rank ring. The ring fill is unchanged.
+- Stats card: `show=reviews` adds a "PRs Reviewed (last year)" row. It is off by default, so existing cards look the same. `reviews` is also accepted by `hide`, which wins over `show`.
+
+- URL builder page at the app root (`index.html` and `builder/`). Pick a card and options, then copy the URL, Markdown or HTML. The live preview renders sample data in the browser with the real card code, makes no network requests (enforced by a Content-Security-Policy) and uses no GitHub rate limit.
+
+### Changed
+- README: documented the URL builder, `rank_icon=percentile`, `show` and the `reviews` value of `hide`, and added an example.
+
 ## [1.1.0] - 2026-10-18
 
 ### Added

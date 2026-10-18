@@ -42,6 +42,20 @@ Light and dark variants:
 </picture>
 ```
 
+## URL builder
+
+Open the root of your deployed app (`https://YOUR-APP.vercel.app/`) to build a card URL by clicking instead of typing. Pick a card, set the options, then copy the URL, Markdown or HTML.
+
+The preview is drawn in your browser from made-up sample data, using the same code as the cards. It never calls GitHub or your `/api` endpoints, so using it costs no rate limit. The page also sets a Content-Security-Policy that blocks every network request. Options that change real data (like `exclude_repo`) can't show in the demo, but they are still added to the URL.
+
+To run it locally, serve the project folder with any static server (opening `index.html` as a file doesn't work, because browsers block ES modules from `file://`):
+
+```
+python3 -m http.server 8000
+```
+
+then open `http://localhost:8000/`.
+
 ## Parameters
 
 All three cards share the same names. Invalid values return an error SVG.
@@ -76,7 +90,8 @@ Colors are plain hex only (no gradients, no color names). The calendar uses GitH
 | stats | `include_all_commits` | `false` | `true` = all-time commits instead of the last 12 months |
 | stats | `hide_title` | `false` | `true` removes the title |
 | stats | `hide_rank` | `false` | `true` removes the rank ring (and `rank_icon` with it) |
-| stats | `rank_icon` | `letter` | `letter` shows the rank (S, A+, A, B+, ...). `github` shows the GitHub icon inside the ring instead. `rank-icon` also works |
+| stats | `rank_icon` | `letter` | What the ring shows: `letter` = the rank (S, A+, A, B+, ...), `github` = the GitHub icon, `percentile` = your top percentage, e.g. `TOP 12%`. `rank-icon` also works |
+| stats | `show` | none | Turns on extra rows. `show=reviews` adds a "PRs Reviewed (last year)" row. Remove it again with `hide=reviews` |
 | stats | `custom_title` | `<Name>'s GitHub Stats` | Replace the title text (URL-encode spaces, max 60 characters) |
 | stats | `exclude_repo` | none | Comma list of repos to skip. Names appear in the URL |
 | streak | `start_year` | account creation year | Minimum 2005 |
@@ -85,7 +100,7 @@ Colors are plain hex only (no gradients, no color names). The calendar uses GitH
 | streak | `card_height` | `195` | 150 to 400 |
 | streak | `date_format` | `mmm d, yyyy` | How dates are written, e.g. `dd-mmm-yyyy`. See [Date format](#date-format). The default hides the year for the current year; a custom format always shows exactly what you write |
 
-`hide` values: stats → `stars,commits,prs,issues,contribs` · streak → `total,current,longest` · calendar → ignored.
+`hide` values: stats → `stars,commits,prs,issues,contribs,reviews` · streak → `total,current,longest` · calendar → ignored.
 
 ### How to use the params
 
@@ -141,6 +156,7 @@ Each one below is a different mix. Copy a line, replace `YOU`, then change the v
 | `/api/calendar?user=YOU&speed=100&card_width=800` | A wider calendar that scrolls faster than the default 40 |
 | `/api/stats?user=YOU&theme=dracula&hide=issues&number_format=long` | Hides the issues row and prints full numbers (`1500`, not `1.5k`) |
 | `/api/stats?user=YOU&theme=radical&rank_icon=github` | Shows the GitHub icon in the rank ring instead of the letter |
+| `/api/stats?user=YOU&rank_icon=percentile&show=reviews` | Shows `TOP 12%` in the ring and adds the PRs Reviewed row |
 | `/api/stats?user=YOU&custom_title=My%20Dev%20Stats&hide_rank=true&commits_year=2025` | Custom title, no rank ring, commits counted for 2025 only |
 | `/api/stats?user=YOU&include_all_commits=true&exclude_repo=old-project,test-repo` | All-time commits, skipping two repos |
 | `/api/streak?user=YOU&mode=weekly&exclude_days=Sat,Sun` | Weekly streak, and weekends never break it |
@@ -158,7 +174,7 @@ In a README, wrap any of them in Markdown image syntax:
 
 **Calendar:** every year from `start_year` to now, fetched in one-year chunks, scrolling horizontally with a sticky year label.
 
-**Stats:** stars (repositories paginated, up to 10 pages), commits, PRs, issues and contributions, with a rank ring. The rank is computed from commits, PRs, issues, reviews, stars and followers, converted to a percentile: S (top 1%), A+ (12.5%), A (25%), A- (37.5%), B+ (50%), B (62.5%), B- (75%), C+ (87.5%), C. With `rank_icon=github` the ring still fills by percentile, but the GitHub icon replaces the letter.
+**Stats:** stars (repositories paginated, up to 10 pages), commits, PRs, issues and contributions, with a rank ring. The rank is computed from commits, PRs, issues, reviews, stars and followers, converted to a percentile: S (top 1%), A+ (12.5%), A (25%), A- (37.5%), B+ (50%), B (62.5%), B- (75%), C+ (87.5%), C. The ring always fills by percentile. `rank_icon` only changes what is written inside it: the letter, the GitHub icon, or the percentile itself (`TOP 12%`). The optional reviews row (`show=reviews`) counts pull request reviews from the last 12 months.
 
 **Streak:**
 - *Current streak:* consecutive days ending today. If today is still empty, counting ends at yesterday, so the streak isn't reset early.
@@ -210,6 +226,8 @@ The token is used server-side only and never appears in any response.
 npm test
 ```
 
+The builder page is plain static files (`index.html` and `builder/`), with no build step. `builder/meta.js` lists every param, and its defaults come from the same constants the cards use, so a new param needs one entry there.
+
 Node 22 (`engines` is `22.x`), no runtime dependencies. For local runs copy `.env.example` to `.env`. A `.private/` folder is git-ignored for local notes. See [CHANGELOG.md](CHANGELOG.md) for version history.
 
 ## References
@@ -220,7 +238,7 @@ The stats and streak cards are built on two open source projects. Parameter name
 |---|---|---|---|---|
 | Stats | [anuraghazra/github-readme-stats](https://github.com/anuraghazra/github-readme-stats) | Anurag Hazra and contributors | Stat rows, rank formula and levels, and the params `hide`, `hide_title`, `hide_rank`, `hide_border`, `include_all_commits`, `commits_year`, `custom_title`, `exclude_repo`, `rank_icon`, `number_format` | Only the stats card is kept. SVG only, generic fonts only, no `locale`, colors are plain hex |
 | Streak | [DenverCoder1/github-readme-streak-stats](https://github.com/DenverCoder1/github-readme-streak-stats) | Jonah Lawrence and contributors | Current and longest streak, `mode` (`daily` / `weekly`), `exclude_days`, `date_format`, `card_width`, `card_height` | Rewritten from PHP to JavaScript. `starting_year` is now `start_year`, colors use the shared names (`bg_color`, `ring_color`, ...), and `date_format` uses `dd mmm yyyy` style tokens instead of PHP ones |
-| Calendar | Personal idea of the project author | Md. Jahidul Islam Sujan | Scrolling contribution grid with a sticky year label | Written from scratch for this project |
+| Calendar | Personal idea of the project author | not based on another project | Scrolling contribution grid with a sticky year label | Written from scratch for this project |
 
 Their READMEs document options that are not included here, such as custom labels and locales on the streak card, and extra cards and themes in github-readme-stats.
 

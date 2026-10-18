@@ -95,3 +95,22 @@ test('rank_icon rejects unknown values and is ignored with hide_rank', () => {
     const svg = render({ user: 'ada', rank_icon: 'github', hide_rank: 'true' });
     assert.ok(!svg.includes('<circle'));
 });
+
+
+test('rank_icon=percentile shows the top percentage', () => {
+    const svg = render({ user: 'ada', rank_icon: 'percentile' });
+    const top = Math.max(0.1, calculateRank(stats).percentile);
+    const shown = top < 10 ? String(Number(top.toFixed(1))) : String(Math.round(top));
+    assert.ok(svg.includes('>TOP</text>'));
+    assert.ok(svg.includes(`>${shown}%</text>`));
+    assert.ok(!svg.includes('font-size="26"'));
+});
+
+test('show=reviews adds the PRs Reviewed row; hide=reviews removes it again', () => {
+    assert.ok(!render({ user: 'ada' }).includes('PRs Reviewed'));
+    const on = render({ user: 'ada', show: 'reviews' });
+    assert.ok(on.includes('PRs Reviewed (last year)'));
+    assert.ok(on.includes('>3<')); // stats.reviews
+    assert.ok(!render({ user: 'ada', show: 'reviews', hide: 'reviews' }).includes('PRs Reviewed'));
+    assert.ok(!render({ user: 'ada', show: 'nonsense' }).includes('PRs Reviewed')); // unknown values ignored
+});

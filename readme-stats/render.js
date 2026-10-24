@@ -62,9 +62,10 @@ export function renderStats({ stats, rank, params, options }) {
         .map((r, i) => {
             const cy = bodyTop + i * ROW_HEIGHT + ROW_HEIGHT / 2;
             const fade = animated
-                ? `<animate attributeName="opacity" from="0" to="1" begin="${i * 150}ms" dur="400ms" fill="both"/>`
+                ? `<animate attributeName="opacity" from="0" to="1" begin="${i * 150}ms" dur="400ms" fill="freeze"/>`
                 : '';
-            return `<g transform="translate(25, ${cy})">${fade}
+            const hidden = animated ? ' opacity="0"' : '';
+            return `<g transform="translate(25, ${cy})"${hidden}>${fade}
       <svg x="0" y="-8" width="16" height="16" viewBox="0 0 16 16"><path fill="${colors.icon}" fill-rule="evenodd" d="${ICONS[r.key]}"/></svg>
       <text x="26" y="5" font-size="14" fill="${colors.text}">${escapeXml(r.label)}</text>
       <text x="${valueX}" y="5" font-size="14" font-weight="700" text-anchor="end" fill="${colors.text}">${escapeXml(formatNumber(r.value, numberFormat))}</text>
@@ -90,8 +91,8 @@ export function renderStats({ stats, rank, params, options }) {
             options.rankIcon === 'percentile'
                 ? percentLabel()
                 : options.rankIcon === 'github'
-                ? `<svg x="${-ICON_SIZE / 2}" y="${-ICON_SIZE / 2}" width="${ICON_SIZE}" height="${ICON_SIZE}" viewBox="0 0 16 16"><path fill="${colors.title}" fill-rule="evenodd" d="${GITHUB_MARK}"/></svg>`
-                : `<text x="0" y="9" font-size="26" font-weight="800" text-anchor="middle" fill="${colors.title}">${escapeXml(rank.level)}</text>`;
+                    ? `<svg x="${-ICON_SIZE / 2}" y="${-ICON_SIZE / 2}" width="${ICON_SIZE}" height="${ICON_SIZE}" viewBox="0 0 16 16"><path fill="${colors.title}" fill-rule="evenodd" d="${GITHUB_MARK}"/></svg>`
+                    : `<text x="0" y="9" font-size="26" font-weight="800" text-anchor="middle" fill="${colors.title}">${escapeXml(rank.level)}</text>`;
         rankSvg = `<g transform="translate(${cx}, ${cy})">
       <circle r="${RING_RADIUS}" fill="none" stroke="${colors.ring}" stroke-opacity="0.2" stroke-width="${RING_STROKE}"/>
       <circle r="${RING_RADIUS}" fill="none" stroke="${colors.ring}" stroke-width="${RING_STROKE}" stroke-linecap="round" transform="rotate(-90)" stroke-dasharray="${RING_CIRCUMFERENCE.toFixed(2)}" stroke-dashoffset="${finalOffset.toFixed(2)}">${ringAnim}</circle>

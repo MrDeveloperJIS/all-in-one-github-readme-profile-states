@@ -20,15 +20,15 @@
     <main>
         <section class="controls" aria-label="Options">
             <div id="tabs" role="tablist" aria-label="Card"></div>
+            <div class="bg-toggle" role="group" aria-label="Preview background">
+                <button type="button" data-bg="light" aria-pressed="true">Light page</button>
+                <button type="button" data-bg="dark" aria-pressed="false">Dark page</button>
+            </div>
             <div id="form"></div>
             <button id="reset" type="button" class="secondary">Reset options</button>
         </section>
 
         <aside class="output" aria-label="Preview and URL">
-            <div class="bg-toggle" role="group" aria-label="Preview background">
-                <button type="button" data-bg="light" aria-pressed="true">Light page</button>
-                <button type="button" data-bg="dark" aria-pressed="false">Dark page</button>
-            </div>
             <div id="stage" data-bg="light"><img id="preview" alt="Card preview with sample data"></div>
             <p class="hint">Sample data only. Options that change real data (like <code>exclude_repo</code>) can't show here.</p>
 
@@ -37,18 +37,24 @@
 
             <div class="out">
                 <label class="field" for="out-url">URL</label>
-                <textarea id="out-url" readonly rows="3"></textarea>
-                <button type="button" data-copy="out-url">Copy</button>
+                <div class="out-box">
+                    <textarea id="out-url" readonly rows="3"></textarea>
+                    <button type="button" class="copy-btn" data-copy="out-url" aria-label="Copy URL" title="Copy"></button>
+                </div>
             </div>
             <div class="out">
                 <label class="field" for="out-md">Markdown</label>
-                <textarea id="out-md" readonly rows="3"></textarea>
-                <button type="button" data-copy="out-md">Copy</button>
+                <div class="out-box">
+                    <textarea id="out-md" readonly rows="3"></textarea>
+                    <button type="button" class="copy-btn" data-copy="out-md" aria-label="Copy Markdown" title="Copy"></button>
+                </div>
             </div>
             <div class="out">
                 <label class="field" for="out-html">HTML</label>
-                <textarea id="out-html" readonly rows="3"></textarea>
-                <button type="button" data-copy="out-html">Copy</button>
+                <div class="out-box">
+                    <textarea id="out-html" readonly rows="3"></textarea>
+                    <button type="button" class="copy-btn" data-copy="out-html" aria-label="Copy HTML" title="Copy"></button>
+                </div>
             </div>
         </aside>
     </main>

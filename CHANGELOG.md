@@ -4,6 +4,26 @@ All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the project uses [Semantic Versioning](https://semver.org/).
 
+## [1.3.0] - 2026-10-23
+
+### Added
+- Top languages card (`/api/top-langs`): your most used languages from the repositories you own (forks skipped, up to 500 repos). Five layouts with `layout`: `normal`, `compact`, `donut`, `donut-vertical` and `pie`. Other params: `langs_count` (1 to 20), `hide` (language names), `exclude_repo`, `size_weight` and `count_weight` (0 to 5, to rank by code size, repo count or a mix), `hide_title`, `hide_progress` and `custom_title`. The default width depends on the layout (300 to 400); `card_width` ranges from 280 to 1000.
+- URL builder: a Top languages card in the picker, with every param above and a live preview from sample data, so it still makes no network requests.
+- URL builder: separate `copy.svg` and `check.svg` icon files in `builder/icons/`, used by the new copy buttons.
+
+### Changed
+- URL builder: the card picker is now a dropdown with a "Card Type" label that stays at the top while the form scrolls, so more cards fit without crowding the page.
+- URL builder: the copy buttons are small icon buttons inside the corner of each URL, Markdown and HTML box. The icon turns into a check mark for a moment after copying. The text boxes no longer resize.
+- URL builder: the "Page background" toggle has a label and sits above the form, and scrollbars are thin and match the light or dark theme.
+- `title_color`, `hide_title`, `custom_title` and `exclude_repo` now also apply to the Top languages card in the builder.
+- Top languages: long language names are shortened with an ellipsis instead of running into the percentages, and the `normal` layout no longer leaves extra empty space under the last bar.
+- URL builder: `hide` has a separate value for Top languages (language names), so values from the Stats and Streak checkboxes no longer carry over into its URL. `size_weight` and `count_weight` accept decimals such as `0.5`.
+- URL builder: the Stats custom title placeholder is `<Name>'s GitHub Stats` again.
+- URL builder: a Top languages `card_width` of 300 is no longer dropped from the URL for the `compact`, `donut` and `pie` layouts, whose real default width differs. `custom_title` and `exclude_repo` are cleared when you switch cards.
+- Stats and streak cards: fade-in and ring animations now use valid SVG timing (`fill="freeze"`, rows and columns start hidden, the streak ring starts empty).
+- Stats: no extra GitHub request after the 10th page of repositories.
+- README: documented the Top languages card (table, params, examples, how it works, troubleshooting) and added it to References. Four cards instead of three. Unknown themes are documented as returning an error card, and the streak `date_format` default is described correctly.
+
 ## [1.2.1] - 2026-10-18
 
 ### Added

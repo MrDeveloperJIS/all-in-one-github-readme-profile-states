@@ -24,6 +24,7 @@
 
 * {
     box-sizing: border-box;
+    outline: none;
 }
 
 body {
@@ -74,27 +75,31 @@ main {
     }
 }
 
+/* Card picker: "Card Type" label + dropdown, stays at the top while the form scrolls. */
 #tabs {
+    position: sticky;
+    top: 0;
+    z-index: 10;
     display: flex;
-    gap: 6px;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
     margin-bottom: 14px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--line);
 }
 
-#tabs button {
+#tabs::before {
+    content: "Card Type";
+    flex: none;
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+#tabs select {
     flex: 1;
-    padding: 8px;
-    border: 1px solid var(--line);
-    background: var(--panel);
-    color: var(--text);
-    border-radius: 6px;
-    font: inherit;
-    cursor: pointer;
-}
-
-#tabs button[aria-selected="true"] {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: var(--accent-text);
+    min-width: 0;
 }
 
 .group {
@@ -190,7 +195,6 @@ button {
 }
 
 button.secondary,
-.out button,
 .bg-toggle button {
     padding: 6px 12px;
     border: 1px solid var(--line);
@@ -200,10 +204,20 @@ button.secondary,
     cursor: pointer;
 }
 
+/* "Page background" label on the left, buttons pushed to the right end. */
 .bg-toggle {
     display: flex;
+    align-items: center;
     gap: 6px;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
+}
+
+.bg-toggle::before {
+    content: "Page background";
+    margin-right: auto;
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
 }
 
 .bg-toggle button[aria-pressed="true"] {
@@ -244,22 +258,117 @@ button.secondary,
     font-weight: 600;
 }
 
-.out {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 0 8px;
-    align-items: start;
+.out .field {
+    margin-top: 12px;
 }
 
-.out .field {
-    grid-column: 1 / -1;
+/* Floating copy button sits inside the top-right corner of the textarea. */
+.out-box {
+    position: relative;
+}
+
+.out-box textarea {
+    padding-right: 40px;
+}
+
+.copy-btn {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--panel);
+    color: var(--muted);
+    cursor: pointer;
+}
+
+.copy-btn:hover,
+.copy-btn:focus-visible {
+    color: var(--text);
+    border-color: var(--accent);
+}
+
+/* Icons are separate SVG files, used as masks so they follow the text color. */
+.copy-btn::before {
+    content: "";
+    width: 16px;
+    height: 16px;
+    background: currentColor;
+    -webkit-mask: url("./icons/copy.svg") center / contain no-repeat;
+    mask: url("./icons/copy.svg") center / contain no-repeat;
+}
+
+.copy-btn.copied::before {
+    -webkit-mask-image: url("./icons/check.svg");
+    mask-image: url("./icons/check.svg");
+}
+
+.copy-btn.copied {
+    color: var(--accent);
+    border-color: var(--accent);
 }
 
 textarea {
-    resize: vertical;
+    resize: none;
     font: 12px/1.4 ui-monospace, monospace;
 }
 
 code {
     font-family: ui-monospace, monospace;
+}
+
+/* Scrollbars: thin, themed, rounded thumb. */
+:root {
+    --thumb: #c1c8d0;
+    --thumb-hover: #9aa4af;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --thumb: #3b434c;
+        --thumb-hover: #565f6b;
+    }
+}
+
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--thumb) transparent;
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--thumb);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--thumb-hover);
+    background-clip: padding-box;
+}
+
+/* The preview stage keeps a fixed light/dark background, so match its scrollbar to it. */
+#stage[data-bg="light"] {
+    --thumb: #c1c8d0;
+    --thumb-hover: #9aa4af;
+}
+
+#stage[data-bg="dark"] {
+    --thumb: #3b434c;
+    --thumb-hover: #565f6b;
 }

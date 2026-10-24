@@ -1,5 +1,5 @@
 // Turns the builder's form values into a card URL. Pure, no DOM.
-import { PARAMS, appliesTo, defaultOf, optionsOf } from './meta.js';
+import { PARAMS, appliesTo, defaultOf, keyOf, optionsOf } from './meta.js';
 
 // Keep , / : readable. They are valid inside a query string.
 const readable = (s) => s.replace(/%2C/gi, ',').replace(/%2F/gi, '/').replace(/%3A/gi, ':');
@@ -40,7 +40,7 @@ export function buildQuery(card, values, userFallback = 'YOU') {
             pairs.push(['user', String(values.user ?? '').trim() || userFallback]);
             continue;
         }
-        const value = serialize(p, card, values[p.name]);
+        const value = serialize(p, card, values[keyOf(p)]);
         if (value !== undefined) pairs.push([p.name, value]);
     }
     return pairs;

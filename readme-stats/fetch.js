@@ -58,7 +58,7 @@ async function countStars(login, firstPage, excluded) {
         }
         const last = nodes[nodes.length - 1];
         const done = !page?.pageInfo?.hasNextPage || !last || (last.stargazers?.totalCount ?? 0) === 0;
-        if (done) break;
+        if (done || i === MAX_REPO_PAGES - 1) break;
         const data = await graphql(REPOS_QUERY, { login, after: page.pageInfo.endCursor });
         page = data?.user?.repositories;
     }

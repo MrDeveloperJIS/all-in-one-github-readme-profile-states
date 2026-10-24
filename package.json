@@ -1,6 +1,6 @@
 {
     "name": "all-in-one-readme-profile-states",
-    "version": "1.2.1",
+    "version": "1.3.0",
     "private": true,
     "description": "SVG profile cards for GitHub READMEs, deployed on Vercel.",
     "type": "module",

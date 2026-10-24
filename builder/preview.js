@@ -11,6 +11,8 @@ import { renderStats } from '../readme-stats/render.js';
 import { CARD_WIDTH as STREAK_WIDTH, HIDE_VALUES as STREAK_HIDE, parseStreakOptions } from '../streak-stats/options.js';
 import { calculateStreaks } from '../streak-stats/calculate.js';
 import { renderStreak } from '../streak-stats/render.js';
+import { CARD_WIDTH as LANGS_WIDTH, HIDE_VALUES as LANGS_HIDE, parseTopLangsOptions } from '../top-langs/options.js';
+import { renderTopLangs } from '../top-langs/render.js';
 
 export const DEMO_CREATED_YEAR = 2019;
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -71,7 +73,43 @@ function demoStats(login, options) {
     };
 }
 
-/** card: 'calendar' | 'stats' | 'streak'. query: the same plain object the API would receive. Returns SVG text. */
+// bytes = code size, count = number of repos using the language.
+const DEMO_LANGS = [
+    { name: 'JavaScript', color: '#f1e05a', bytes: 540000, count: 14 },
+    { name: 'TypeScript', color: '#3178c6', bytes: 310000, count: 9 },
+    { name: 'Python', color: '#3572a5', bytes: 190000, count: 7 },
+    { name: 'CSS', color: '#663399', bytes: 120000, count: 12 },
+    { name: 'HTML', color: '#e34c26', bytes: 90000, count: 11 },
+    { name: 'Go', color: '#00add8', bytes: 70000, count: 3 },
+    { name: 'Shell', color: '#89e051', bytes: 40000, count: 8 },
+    { name: 'Rust', color: '#dea584', bytes: 30000, count: 2 },
+    { name: 'Java', color: '#b07219', bytes: 22000, count: 2 },
+    { name: 'C', color: '#555555', bytes: 15000, count: 1 },
+];
+
+/** Same ranking and percentages as fetchTopLangs(), on made-up data. */
+function demoTopLangs(login, options) {
+    const ranked = DEMO_LANGS.filter((l) => !options.hideLangs.has(l.name.toLowerCase()))
+        .map((l) => ({
+            name: l.name,
+            color: l.color,
+            size: Math.pow(l.bytes, options.sizeWeight) * Math.pow(l.count, options.countWeight),
+        }))
+        .filter((l) => l.size > 0)
+        .sort((a, b) => b.size - a.size)
+        .slice(0, options.langsCount);
+
+    if (!ranked.length) throw new CardError('No language data found for this user.', 'no_data');
+
+    const sum = ranked.reduce((s, l) => s + l.size, 0);
+    return {
+        name: login ? login[0].toUpperCase() + login.slice(1) : 'Octocat',
+        login,
+        langs: ranked.map((l) => ({ ...l, percent: (l.size / sum) * 100 })),
+    };
+}
+
+/** card: 'calendar' | 'stats' | 'streak' | 'top-langs'. query: the same plain object the API would receive. Returns SVG text. */
 export function renderDemo(card, query = {}, now = new Date()) {
     let params;
     try {
@@ -99,6 +137,13 @@ export function renderDemo(card, query = {}, now = new Date()) {
             const counts = new Map([...demoCounts(now)].filter(([key]) => key >= `${startYear}-01-01`));
             const result = calculateStreaks(counts, { now, mode: options.mode, excludeDays: options.excludeDays });
             return renderStreak({ result, params, options, now });
+        }
+
+        if (card === 'top-langs') {
+            params = parseCommon(query, { cardWidth: LANGS_WIDTH, hide: LANGS_HIDE, userAlias: 'username' });
+            const options = parseTopLangsOptions(params);
+            const data = demoTopLangs(params.user || 'octocat', options);
+            return renderTopLangs({ data, params, options });
         }
 
         throw new CardError('Unknown card.', 'bad_param');

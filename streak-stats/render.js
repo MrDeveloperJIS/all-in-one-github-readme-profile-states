@@ -84,7 +84,7 @@ export function renderStreak({ result, params, options, now = new Date() }) {
             const cx = i * colW + colW / 2;
             const text = formatNumber(c.value, numberFormat);
             const fade = animated
-                ? `<animate attributeName="opacity" from="0" to="1" begin="${i * 150}ms" dur="500ms" fill="both"/>`
+                ? `<animate attributeName="opacity" from="0" to="1" begin="${i * 150}ms" dur="500ms" fill="freeze"/>`
                 : '';
 
             let ring = '';
@@ -92,13 +92,14 @@ export function renderStreak({ result, params, options, now = new Date() }) {
             if (c.ring) {
                 numberSize = fit(text, 62, 28);
                 const ringAnim = animated
-                    ? `<animate attributeName="stroke-dasharray" from="0 ${RING_CIRCUMFERENCE.toFixed(2)}" to="${ringDash}" begin="300ms" dur="900ms" fill="both"/>`
+                    ? `<animate attributeName="stroke-dasharray" from="0 ${RING_CIRCUMFERENCE.toFixed(2)}" to="${ringDash}" begin="300ms" dur="900ms" fill="freeze"/>`
                     : '';
-                ring = `<circle cx="${cx}" cy="${cy}" r="${RING_RADIUS}" fill="none" stroke="${colors.ring}" stroke-width="${RING_STROKE}" stroke-linecap="round" stroke-dasharray="${ringDash}" transform="rotate(${(-90 + gapDeg / 2).toFixed(2)} ${cx} ${cy})">${ringAnim}</circle>
+                const startDash = animated ? `0 ${RING_CIRCUMFERENCE.toFixed(2)}` : ringDash;
+                ring = `<circle cx="${cx}" cy="${cy}" r="${RING_RADIUS}" fill="none" stroke="${colors.ring}" stroke-width="${RING_STROKE}" stroke-linecap="round" stroke-dasharray="${startDash}" transform="rotate(${(-90 + gapDeg / 2).toFixed(2)} ${cx} ${cy})">${ringAnim}</circle>
       <svg x="${cx - 9}" y="${cy - RING_RADIUS - 8}" width="18" height="16" viewBox="0 0 16 14"><path fill="${colors.icon}" d="${FLAME}"/></svg>`;
             }
 
-            return `<g>${fade}
+            return `<g${animated ? ' opacity="0"' : ''}>${fade}
       ${ring}
       <text x="${cx}" y="${cy + numberSize * 0.35}" font-size="${numberSize}" font-weight="700" text-anchor="middle" fill="${colors.title}">${escapeXml(text)}</text>
       <text x="${cx}" y="${labelY}" font-size="${labelSize}" font-weight="600" text-anchor="middle" fill="${colors.text}">${escapeXml(c.label)}</text>

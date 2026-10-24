@@ -1,6 +1,6 @@
 // URL builder UI. The preview is rendered in the browser from sample data.
 // The page's Content-Security-Policy blocks every network request.
-import { CARDS, GROUPS, PARAMS, appliesTo, defaultOf, optionsOf, specOf } from './meta.js';
+import { CARDS, GROUPS, PARAMS, appliesTo, defaultOf, keyOf, optionsOf, specOf } from './meta.js';
 import { buildQuery, buildUrl } from './url.js';
 import { renderDemo } from './preview.js';
 import { formatWithParts, parseDateFormat } from '../shared/dateformat.js';
@@ -37,30 +37,36 @@ function dateHint(value) {
 
 function makeControl(p) {
     const id = `f-${p.name}`;
-    const current = state.values[p.name];
+    const key = keyOf(p);
+    const current = state.values[key];
 
     if (p.type === 'select') {
         const select = el('select', { id }, optionsOf(p, state.card).map((o) => el('option', { value: o }, o)));
         select.value = current ?? defaultOf(p, state.card);
-        select.addEventListener('change', () => setValue(p.name, select.value));
+        select.addEventListener('change', () => setValue(key, select.value));
         return select;
     }
 
     if (p.type === 'bool') {
         const box = el('input', { id, type: 'checkbox' });
         box.checked = current === 'true';
-        box.addEventListener('change', () => setValue(p.name, String(box.checked)));
+        box.addEventListener('change', () => setValue(key, String(box.checked)));
         return box;
     }
 
     if (p.type === 'number') {
         const spec = specOf(p, state.card);
-        const attrs = { id, type: 'number', step: '1', placeholder: p.placeholder ?? String(spec.def) };
+        const attrs = {
+            id,
+            type: 'number',
+            step: p.step ?? '1',
+            placeholder: p.placeholder ?? (spec.def === '' ? 'automatic' : String(spec.def)),
+        };
         if (spec.min !== undefined) attrs.min = String(spec.min);
         if (spec.max !== undefined) attrs.max = String(spec.max);
         const input = el('input', attrs);
         input.value = current ?? '';
-        input.addEventListener('input', () => setValue(p.name, input.value));
+        input.addEventListener('input', () => setValue(key, input.value));
         return input;
     }
 
@@ -76,12 +82,12 @@ function makeControl(p) {
         sync();
         text.addEventListener('input', () => {
             sync();
-            setValue(p.name, text.value);
+            setValue(key, text.value);
         });
         picker.addEventListener('input', () => {
             text.value = picker.value.slice(1);
             sync();
-            setValue(p.name, text.value);
+            setValue(key, text.value);
         });
         return el('span', { class: 'color-pair' }, [text, picker]);
     }
@@ -93,10 +99,10 @@ function makeControl(p) {
             const box = el('input', { type: 'checkbox', value: option });
             box.checked = picked.has(option);
             box.addEventListener('change', () => {
-                const next = new Set(state.values[p.name] ?? []);
+                const next = new Set(state.values[key] ?? []);
                 if (box.checked) next.add(option);
                 else next.delete(option);
-                setValue(p.name, [...next]);
+                setValue(key, [...next]);
             });
             wrap.append(el('label', { class: 'check' }, [box, ` ${option}`]));
         }
@@ -107,7 +113,7 @@ function makeControl(p) {
     if (p.placeholder) input.setAttribute('placeholder', p.placeholder);
     input.value = current ?? '';
     input.addEventListener('input', () => {
-        setValue(p.name, input.value);
+        setValue(key, input.value);
         if (p.name === 'date_format') $('hint-date_format').textContent = dateHint(input.value);
     });
     return input;
@@ -136,19 +142,22 @@ function buildForm() {
     }
 }
 
+// Card picker: a dropdown, so adding more cards never crowds the page.
 function buildTabs() {
-    const tabs = $('tabs');
-    tabs.replaceChildren();
-    for (const card of CARDS) {
-        const tab = el('button', { type: 'button', role: 'tab', 'aria-selected': String(card.id === state.card) }, card.label);
-        tab.addEventListener('click', () => {
-            state.card = card.id;
-            buildTabs();
-            buildForm();
-            update();
-        });
-        tabs.append(tab);
-    }
+    const box = $('tabs');
+    box.removeAttribute('role'); // it holds a <select> now, not tab buttons
+    box.replaceChildren();
+
+    const select = el('select', { id: 'card-select', 'aria-label': 'Card' }, CARDS.map((c) => el('option', { value: c.id }, c.label)));
+    select.value = state.card;
+    select.addEventListener('change', () => {
+        state.card = select.value;
+        delete state.values.custom_title;
+        delete state.values.exclude_repo;
+        buildForm();
+        update();
+    });
+    box.append(select);
 }
 
 function update() {
@@ -185,6 +194,7 @@ function wireStatic() {
     }
 
     for (const button of document.querySelectorAll('[data-copy]')) {
+        let timer;
         button.addEventListener('click', async () => {
             const field = $(button.dataset.copy);
             try {
@@ -193,9 +203,13 @@ function wireStatic() {
                 field.select();
                 document.execCommand('copy');
             }
-            const label = button.textContent;
-            button.textContent = 'Copied';
-            setTimeout(() => (button.textContent = label), 1500);
+            button.classList.add('copied');
+            button.title = 'Copied';
+            clearTimeout(timer);
+            timer = setTimeout(() => {
+                button.classList.remove('copied');
+                button.title = 'Copy';
+            }, 1500);
         });
     }
 }

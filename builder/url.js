@@ -40,6 +40,10 @@ export function buildQuery(card, values, userFallback = 'YOU') {
             pairs.push(['user', String(values.user ?? '').trim() || userFallback]);
             continue;
         }
+        if (p.fallback !== undefined) {
+            pairs.push([p.name, String(values[keyOf(p)] ?? '').trim() || p.fallback]);
+            continue;
+        }
         const value = serialize(p, card, values[keyOf(p)]);
         if (value !== undefined) pairs.push([p.name, value]);
     }

@@ -13,6 +13,10 @@ import { calculateStreaks } from '../streak-stats/calculate.js';
 import { renderStreak } from '../streak-stats/render.js';
 import { CARD_WIDTH as LANGS_WIDTH, HIDE_VALUES as LANGS_HIDE, parseTopLangsOptions } from '../top-langs/options.js';
 import { renderTopLangs } from '../top-langs/render.js';
+import { CARD_WIDTH as REPO_WIDTH, HIDE_VALUES as REPO_HIDE, parseRepoOptions } from '../repo-card/options.js';
+import { renderRepo } from '../repo-card/render.js';
+import { CARD_WIDTH as GIST_WIDTH, HIDE_VALUES as GIST_HIDE, parseGistOptions } from '../gist-card/options.js';
+import { renderGist } from '../gist-card/render.js';
 
 export const DEMO_CREATED_YEAR = 2019;
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -109,7 +113,31 @@ function demoTopLangs(login, options) {
     };
 }
 
-/** card: 'calendar' | 'stats' | 'streak' | 'top-langs'. query: the same plain object the API would receive. Returns SVG text. */
+const DEMO_REPO = {
+    name: 'hello-world',
+    fullName: 'octocat/hello-world',
+    description: 'A friendly starter project that prints a greeting, with tests, docs and a one-command setup.',
+    stars: 2400,
+    forks: 318,
+    language: { name: 'TypeScript', color: '#3178c6' },
+    archived: false,
+    template: false,
+    fork: false,
+};
+
+const DEMO_GIST = {
+    id: '8f3a1c5d2b7e49a6c0d1e2f3a4b5c6d7',
+    owner: 'octocat',
+    title: 'debounce.js',
+    description: 'A tiny debounce helper with leading and trailing options, plus a few usage examples.',
+    stars: 128,
+    forks: 12,
+    fileCount: 2,
+    moreFiles: false,
+    language: { name: 'JavaScript', color: '#f1e05a' },
+};
+
+/** card: 'calendar' | 'stats' | 'streak' | 'top-langs' | 'repo' | 'gist'. query: the same plain object the API would receive. Returns SVG text. */
 export function renderDemo(card, query = {}, now = new Date()) {
     let params;
     try {
@@ -144,6 +172,22 @@ export function renderDemo(card, query = {}, now = new Date()) {
             const options = parseTopLangsOptions(params);
             const data = demoTopLangs(params.user || 'octocat', options);
             return renderTopLangs({ data, params, options });
+        }
+
+        // repo and id only name real data, so the demo ignores them (their URL placeholders are not valid values).
+        if (card === 'repo') {
+            params = parseCommon({ ...query, repo: 'hello-world' }, { cardWidth: REPO_WIDTH, hide: REPO_HIDE, userAlias: 'username' });
+            const options = parseRepoOptions(params);
+            const owner = params.user || 'octocat';
+            const data = { ...DEMO_REPO, fullName: `${owner}/${DEMO_REPO.name}` };
+            return renderRepo({ data, params, options });
+        }
+
+        if (card === 'gist') {
+            params = parseCommon({ ...query, id: DEMO_GIST.id }, { cardWidth: GIST_WIDTH, hide: GIST_HIDE, userAlias: 'username' });
+            const options = parseGistOptions(params);
+            const data = { ...DEMO_GIST, owner: params.user || 'octocat' };
+            return renderGist({ data, params, options });
         }
 
         throw new CardError('Unknown card.', 'bad_param');

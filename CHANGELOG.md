@@ -4,6 +4,20 @@ All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the project uses [Semantic Versioning](https://semver.org/).
 
+## [1.4.0] - 2026-11-22
+
+### Added
+- Repository card (`/api/repo`): name, description, primary language, stars and forks of one repository, with a badge for archived, template and fork repos. Params: `repo` (required), `show_owner`, `description_lines` (1 to 5) and `hide` (`description`, `language`, `stars`, `forks`, `badge`). `card_width` is 250 to 1000 (default 400). `number_format` applies.
+- Gist card (`/api/gist`): first file name, description, dominant language, number of files, stars and forks of one public gist. Params: `id` (required), `show_owner`, `description_lines` and `hide` (`description`, `language`, `files`, `stars`, `forks`). GitHub returns at most 10 files, so larger gists show `10+ files`.
+- Both cards go through the same checks as the others: `user` must be in `WHITELIST`, errors come back as SVG cards. Private repositories and secret gists are refused instead of drawn.
+- URL builder: "Repository" and "Gist" in the card picker, with every param above and a live preview from sample data (still no network requests). The URL carries `repo=YOUR-REPO` / `id=YOUR-GIST-ID` until you fill the field in.
+- `shared/infocard.js` (layout used by both cards) and `shared/text.js` (`clip`, `wrapLines` and a per-font width estimate). Long descriptions wrap on words, very long words are split, and a footer that doesn't fit moves to a second row.
+- Tests for both cards: options, rendering, GitHub responses (stubbed), API handlers, whitelist, and the builder.
+
+### Changed
+- `graphql()` in `shared/github.js` takes an optional `notFound` message, so a missing repository or gist no longer says "GitHub user not found". Existing cards behave as before.
+- README: six cards instead of four, new params, examples, "How the cards work", troubleshooting rows and References entry.
+
 ## [1.3.0] - 2026-10-23
 
 ### Added

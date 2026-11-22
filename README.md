@@ -1,6 +1,6 @@
 # all-in-one-readme-profile-states
 
-Four SVG cards for your GitHub profile README, served from one Vercel
+Six SVG cards for your GitHub profile README, served from one Vercel
 project with one token and one shared set of parameters.
 
 | Card | Endpoint | Shows |
@@ -9,12 +9,14 @@ project with one token and one shared set of parameters.
 | Stats | `/api/stats` | Stars, commits, PRs, issues, contributions, rank ring |
 | Streak | `/api/streak` | Total contributions, current streak, longest streak |
 | Top languages | `/api/top-langs` | Your most used languages, in five layouts |
+| Repository | `/api/repo` | One repository: name, description, language, stars, forks (like a pinned repo) |
+| Gist | `/api/gist` | One public gist: first file, description, language, files, stars, forks |
 
 Every response is an SVG, including errors.
 
 ## Quick start
 
-1. **Create a token:** GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic) → Generate new token (classic). Select `read:user`. Add `repo` only if you want private repos counted on the stats and top languages cards.
+1. **Create a token:** GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic) → Generate new token (classic). Select `read:user`. Add `repo` only if you want private repos counted on the stats and top languages cards. The repository and gist cards only ever show public repos and gists.
 2. **Deploy:** push this repo to GitHub, then Vercel → Add New → Project → import it. Framework: Other. No build command. The included `vercel.json` sets a 30 second function timeout, and `.vercelignore` keeps `tests/` out of the deployment.
 3. **Set env vars** in Vercel → Project → Settings → Environment Variables, then redeploy:
 
@@ -31,6 +33,8 @@ Every response is an SVG, including errors.
 ![stats](https://YOUR-APP.vercel.app/api/stats?user=YOU&theme=dark&font=monospace&border_radius=10)
 ![streak](https://YOUR-APP.vercel.app/api/streak?user=YOU&theme=dark&font=monospace&border_radius=10)
 ![top languages](https://YOUR-APP.vercel.app/api/top-langs?user=YOU&theme=dark&font=monospace&border_radius=10)
+![repository](https://YOUR-APP.vercel.app/api/repo?user=YOU&repo=YOUR-REPO&theme=dark&font=monospace&border_radius=10)
+![gist](https://YOUR-APP.vercel.app/api/gist?user=YOU&id=YOUR-GIST-ID&theme=dark&font=monospace&border_radius=10)
 ```
 
 Light and dark variants:
@@ -62,7 +66,7 @@ The page is not meant to be found through search: it has `noindex, nofollow` in 
 
 ## Parameters
 
-All four cards share the same names. Invalid values return an error SVG.
+All six cards share the same names. Invalid values return an error SVG.
 
 | Param | Default | Notes |
 |---|---|---|
@@ -71,15 +75,15 @@ All four cards share the same names. Invalid values return an error SVG.
 | `font` | `sans-serif` | `sans-serif`, `serif`, `monospace`, `cursive`, `fantasy`, `system-ui`. Anything else falls back to `sans-serif` |
 | `bg_color` | theme | Hex, 6 or 8 digits, no `#` (8 digits = alpha) |
 | `border_color` | theme | Border and dividers |
-| `title_color` | theme | Stats and top languages title, streak big numbers |
-| `text_color` | theme | Labels, values, dates, language names |
-| `icon_color` | theme | Stats icons, streak fire |
+| `title_color` | theme | Stats, top languages, repository and gist title, streak big numbers |
+| `text_color` | theme | Labels, values, dates, language names, descriptions |
+| `icon_color` | theme | Stats, repository and gist icons, streak fire |
 | `ring_color` | theme | Stats rank ring, streak ring |
 | `hide_border` | `false` | `true` / `false` |
 | `border_radius` | `6` | 0 to 50 |
-| `card_width` | per card | Clamped per card: calendar 200 to 2000 (default 512), stats 450 to 1000 (default 495), streak 300 to 1000 (default 495), top languages 280 to 1000 (default depends on `layout`, see below). Widen it for `serif` or `monospace` |
+| `card_width` | per card | Clamped per card: calendar 200 to 2000 (default 512), stats 450 to 1000 (default 495), streak 300 to 1000 (default 495), top languages 280 to 1000 (default depends on `layout`, see below), repository and gist 250 to 1000 (default 400). Widen it for `serif` or `monospace` |
 | `disable_animations` | `false` | Static card when `true` |
-| `number_format` | `short` | `short` = `1.5k`, `long` = `1500` |
+| `number_format` | `short` | `short` = `1.5k`, `long` = `1500`. Used by stats, streak, repository and gist |
 | `hide` | none | Comma list, values below. On the top languages card it is a list of language names |
 
 Colors are plain hex only (no gradients, no color names). The calendar uses GitHub's green scale, light or dark by the theme's `mode`.
@@ -113,8 +117,16 @@ Colors are plain hex only (no gradients, no color names). The calendar uses GitH
 | top-langs | `hide_progress` | `false` | `true` removes the bars (`normal`) or the percentages (`compact`). Chart layouts are not affected |
 | top-langs | `custom_title` | `Most Used Languages` | Replace the title text (URL-encode spaces, max 60 characters) |
 | top-langs | `card_width` | by layout | 280 to 1000. When not set: `normal` 300, `compact` 400, `donut` 340, `donut-vertical` 300, `pie` 340 |
+| repo | `repo` | required | Name of the repository, owned by `user` (works for organizations too: use the org name as `user`). Public repositories only |
+| repo | `show_owner` | `false` | `true` writes `owner/name` in the title instead of just `name` |
+| repo | `description_lines` | `2` | How many lines of description to show, 1 to 5. Longer text ends with `…` |
+| repo | `hide` | none | `description`, `language`, `stars`, `forks`, `badge`. The badge is `Archived`, `Template` or `Fork` (in that order of priority) and only appears when it applies |
+| gist | `id` | required | The gist id: the hex part at the end of the gist URL. `user` must be the gist's owner. Public gists only |
+| gist | `show_owner` | `false` | `true` writes `owner/filename` in the title |
+| gist | `description_lines` | `2` | How many lines of description to show, 1 to 5 |
+| gist | `hide` | none | `description`, `language`, `files`, `stars`, `forks` |
 
-`hide` values: stats → `stars,commits,prs,issues,contribs,reviews` · streak → `total,current,longest` · top-langs → language names such as `html,css` · calendar → ignored.
+`hide` values: stats → `stars,commits,prs,issues,contribs,reviews` · streak → `total,current,longest` · top-langs → language names such as `html,css` · repo → `description,language,stars,forks,badge` · gist → `description,language,files,stars,forks` · calendar → ignored.
 
 ### How to use the params
 
@@ -160,33 +172,6 @@ Everything else in the pattern is copied as it is, but only these separators are
 
 Ranges keep their shape: `06-Mar-2026 - Present`, `01-Dec-2024 - 05-Dec-2024`. Long patterns shrink the date text so it stays inside the card.
 
-**Examples**
-
-Each one below is a different mix. Copy a line, replace `YOU`, then change the values to see what happens.
-
-| Example | What it does |
-|---|---|
-| `/api/calendar?user=YOU&theme=tokyonight&start_year=2022` | Calendar in the `tokyonight` theme, showing only 2022 until now |
-| `/api/calendar?user=YOU&speed=100&card_width=800` | A wider calendar that scrolls faster than the default 40 |
-| `/api/stats?user=YOU&theme=dracula&hide=issues&number_format=long` | Hides the issues row and prints full numbers (`1500`, not `1.5k`) |
-| `/api/stats?user=YOU&theme=radical&rank_icon=github` | Shows the GitHub icon in the rank ring instead of the letter |
-| `/api/stats?user=YOU&rank_icon=percentile&show=reviews` | Shows `TOP 12%` in the ring and adds the PRs Reviewed row |
-| `/api/stats?user=YOU&custom_title=My%20Dev%20Stats&hide_rank=true&commits_year=2025` | Custom title, no rank ring, commits counted for 2025 only |
-| `/api/stats?user=YOU&include_all_commits=true&exclude_repo=old-project,test-repo` | All-time commits, skipping two repos |
-| `/api/top-langs?user=YOU&layout=compact&theme=dracula` | Compact layout: one stacked bar with a legend underneath |
-| `/api/top-langs?user=YOU&layout=donut&langs_count=8&hide=html,css` | Donut chart with 8 languages, leaving out HTML and CSS |
-| `/api/top-langs?user=YOU&size_weight=0.5&count_weight=0.5&exclude_repo=old-project` | Ranks by a mix of code size and repo count, and skips one repo |
-| `/api/streak?user=YOU&mode=weekly&exclude_days=Sat,Sun` | Weekly streak, and weekends never break it |
-| `/api/streak?user=YOU&bg_color=00000000&text_color=ffffff&ring_color=ff6e96` | Transparent background with custom text and ring colors |
-| `/api/streak?user=YOU&date_format=dd-mmm-yyyy` | Dates like `06-Mar-2026` instead of `Mar 6` |
-| `/api/streak?user=YOU&theme=gruvbox&hide=total&card_height=170&border_radius=20` | Hides the total, makes the card shorter, rounds the corners |
-
-In a README, wrap any of them in Markdown image syntax:
-
-```md
-![my stats](https://YOUR-APP.vercel.app/api/stats?user=YOU&theme=radical&rank_icon=github)
-```
-
 ## How the cards work
 
 **Calendar:** every year from `start_year` to now, fetched in one-year chunks, scrolling horizontally with a sticky year label.
@@ -194,6 +179,10 @@ In a README, wrap any of them in Markdown image syntax:
 **Stats:** stars (repositories paginated, up to 10 pages), commits, PRs, issues and contributions, with a rank ring. The rank is computed from commits, PRs, issues, reviews, stars and followers, converted to a percentile: S (top 1%), A+ (12.5%), A (25%), A- (37.5%), B+ (50%), B (62.5%), B- (75%), C+ (87.5%), C. The ring always fills by percentile. `rank_icon` only changes what is written inside it: the letter, the GitHub icon, or the percentile itself (`TOP 12%`). The optional reviews row (`show=reviews`) counts pull request reviews from the last 12 months.
 
 **Top languages:** reads the languages of the repositories you own (forks are skipped, up to 500 repositories, and the 10 biggest languages of each). Each language gets a score of `bytes ^ size_weight × repos ^ count_weight`, so the defaults rank purely by code size. The best `langs_count` languages are kept, and the percentages are shares of those shown languages, so they always add up to 100%. Languages without a GitHub color use grey. Private repositories are included only when the token has the `repo` scope.
+
+**Repository:** one GraphQL request for `user/repo`: description, primary language, stars and forks. Archived, template and fork repositories get a small badge. Private repositories are refused with an error card, because the card is public. If your token has the `repo` scope this protects private repos from being shown by accident.
+
+**Gist:** one GraphQL request for a gist of `user`. The title is the name of its first file, and the language is the one with the most code across the gist's files. GitHub returns at most 10 files, so a bigger gist shows `10+ files`. Secret gists are refused with an error card.
 
 **Streak:**
 - *Current streak:* consecutive days ending today. If today is still empty, counting ends at yesterday, so the streak isn't reset early.
@@ -233,6 +222,8 @@ Use `theme=<name>`. Any color param overrides the theme. `light` is an alias of 
 | Old image still showing | It's cached. Wait for `CACHE_SECONDS` or set it to `0` temporarily |
 | Private contributions or repos missing | Enable "Include private contributions on my profile" in GitHub profile settings. Add the `repo` scope for private repo stats and languages |
 | A language is missing from the top languages card | Forks are skipped, only your first 500 repos are read, and `hide`, `exclude_repo` and `langs_count` can drop it. GitHub only reports languages it detects |
+| "Repository not found" card | Check the spelling of `repo`, and that `user` is the owner (for an organization's repo, use the organization name as `user`). Private repos always show "not shown" |
+| "Gist not found" card | `id` must be the hex id from the gist URL, and `user` must be the gist's owner. Secret gists are not shown |
 | "No language data found" card | No owned, non-fork repo has code, or `hide` and `exclude_repo` removed everything |
 | Text overflows the card | `serif` and `monospace` are wider. Increase `card_width` |
 | Function timed out | Functions are limited to 30 seconds by `vercel.json`. Very long histories can still hit it. Raise `maxDuration` there, within your Vercel plan's limit |
@@ -253,12 +244,13 @@ Node 24 (`engines` is `24.x`), no runtime dependencies. For local runs copy `.en
 
 ## References
 
-The stats, top languages and streak cards are built on two open source projects. Parameter names, the rank formula and the streak rules come from them, so many options will feel familiar if you have used the originals. The calendar card is the author's own idea, a personal project that is not published anywhere else.
+The stats, top languages, repository, gist and streak cards are built on two open source projects. Parameter names, the rank formula and the streak rules come from them, so many options will feel familiar if you have used the originals. The calendar card is the author's own idea, a personal project that is not published anywhere else.
 
 | Card | Based on | Author | What was kept | What changed here |
 |---|---|---|---|---|
 | Stats | [anuraghazra/github-readme-stats](https://github.com/anuraghazra/github-readme-stats) | Anurag Hazra and contributors | Stat rows, rank formula and levels, and the params `hide`, `hide_title`, `hide_rank`, `hide_border`, `include_all_commits`, `commits_year`, `custom_title`, `exclude_repo`, `rank_icon`, `number_format` | Only the stats and top languages cards are kept. SVG only, generic fonts only, no `locale`, colors are plain hex |
 | Top languages | [anuraghazra/github-readme-stats](https://github.com/anuraghazra/github-readme-stats) | Anurag Hazra and contributors | The five layouts (`normal`, `compact`, `donut`, `donut-vertical`, `pie`) and the params `layout`, `langs_count`, `hide`, `exclude_repo`, `size_weight`, `count_weight`, `hide_title`, `hide_progress`, `custom_title`, `card_width` | Rewritten as plain SVG with its own renderer. Percentages are shares of the shown languages, `hide` matches language names without case, and the extra card types, `stats_format` and `locale` are not included |
+| Repository, Gist | [anuraghazra/github-readme-stats](https://github.com/anuraghazra/github-readme-stats) | Anurag Hazra and contributors | The idea of a pinned-repository card and a gist card, and the `show_owner` param | Written from scratch as plain SVG on the shared layout. The endpoints are `/api/repo` (`user` + `repo`) and `/api/gist` (`user` + `id`), so the whitelist applies to them like every other card. Private repos and secret gists are never shown |
 | Streak | [DenverCoder1/github-readme-streak-stats](https://github.com/DenverCoder1/github-readme-streak-stats) | Jonah Lawrence and contributors | Current and longest streak, `mode` (`daily` / `weekly`), `exclude_days`, `date_format`, `card_width`, `card_height` | Rewritten from PHP to JavaScript. `starting_year` is now `start_year`, colors use the shared names (`bg_color`, `ring_color`, ...), and `date_format` uses `dd mmm yyyy` style tokens instead of PHP ones |
 | Calendar | Personal idea of the project author | not based on another project | Scrolling contribution grid with a sticky year label | Written from scratch for this project |
 

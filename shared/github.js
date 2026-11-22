@@ -8,8 +8,12 @@ const RATE_LIMIT_MESSAGE = 'GitHub API rate limit reached. Try again later.';
 /**
  * Runs a GraphQL query. Every thrown error is a CardError with a public-safe
  * message; the token is never included in any message.
+ *
+ * opts.notFound: message for a NOT_FOUND error, or a function(path) that
+ * returns it (path = the failing field, e.g. ['user', 'gist']). Default:
+ * 'GitHub user not found.'
  */
-export async function graphql(query, variables = {}) {
+export async function graphql(query, variables = {}, opts = {}) {
     const token = getToken();
     if (!token) throw new CardError('Server is not configured: GH_TOKEN is missing.', 'no_token');
 
@@ -41,7 +45,10 @@ export async function graphql(query, variables = {}) {
 
     if (Array.isArray(body.errors) && body.errors.length) {
         const first = body.errors[0] || {};
-        if (first.type === 'NOT_FOUND') throw new CardError('GitHub user not found.', 'not_found');
+        if (first.type === 'NOT_FOUND') {
+            const custom = typeof opts.notFound === 'function' ? opts.notFound(first.path ?? []) : opts.notFound;
+            throw new CardError(custom || 'GitHub user not found.', 'not_found');
+        }
         if (first.type === 'RATE_LIMITED' || /rate limit/i.test(String(first.message))) {
             throw new CardError(RATE_LIMIT_MESSAGE, 'rate_limit');
         }

@@ -6,11 +6,16 @@ import { CARD_WIDTH as CALENDAR_WIDTH, SPEED } from '../calendar-graph/options.j
 import { CARD_WIDTH as STATS_WIDTH, HIDE_VALUES as STATS_HIDE, SHOW_VALUES, RANK_ICONS } from '../readme-stats/options.js';
 import { CARD_WIDTH as STREAK_WIDTH, CARD_HEIGHT, HIDE_VALUES as STREAK_HIDE } from '../streak-stats/options.js';
 import { CARD_WIDTH as LANGS_WIDTH, LAYOUTS, LANGS_COUNT, WEIGHT } from '../top-langs/options.js';
+import { CARD_WIDTH as REPO_WIDTH, HIDE_VALUES as REPO_HIDE, DESC_LINES } from '../repo-card/options.js';
+import { CARD_WIDTH as GIST_WIDTH, HIDE_VALUES as GIST_HIDE } from '../gist-card/options.js';
 
 const YEAR = new Date().getUTCFullYear();
-const ALL = ['calendar', 'stats', 'streak', 'top-langs'];
+const ALL = ['calendar', 'stats', 'streak', 'top-langs', 'repo', 'gist'];
 const DATA = ['stats', 'streak'];
-const TITLED = ['stats', 'streak', 'top-langs'];
+const NUMBERED = ['stats', 'streak', 'repo', 'gist']; // cards that print numbers (number_format)
+const ICONED = ['stats', 'streak', 'repo', 'gist']; // cards that draw icons (icon_color)
+const TITLED = ['stats', 'streak', 'top-langs', 'repo', 'gist'];
+const INFO = ['repo', 'gist'];
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const YEAR_SPEC = { def: '', min: 2005, max: YEAR };
 
@@ -19,6 +24,8 @@ export const CARDS = [
     { id: 'stats', label: 'Stats' },
     { id: 'streak', label: 'Streak' },
     { id: 'top-langs', label: 'Top languages' },
+    { id: 'repo', label: 'Repository' },
+    { id: 'gist', label: 'Gist' },
 ];
 
 export const GROUPS = [
@@ -37,6 +44,9 @@ const color = (name, label, cards) => ({ name, label, group: 'colors', type: 'co
  */
 export const PARAMS = [
     { name: 'user', label: 'GitHub username', group: 'general', type: 'text', cards: ALL, placeholder: 'octocat' },
+    // fallback: the URL always carries this param, with the placeholder when the field is empty.
+    { name: 'repo', label: 'Repository name', group: 'general', type: 'text', cards: ['repo'], placeholder: 'hello-world', fallback: 'YOUR-REPO', note: 'The repository owned by the username above.' },
+    { name: 'id', label: 'Gist id', group: 'general', type: 'text', cards: ['gist'], placeholder: 'e.g. 8f3a1c...', fallback: 'YOUR-GIST-ID', note: 'The hex id at the end of the gist URL. Public gists of the username above only.' },
     { name: 'theme', label: 'Theme', group: 'general', type: 'select', cards: ALL, options: Object.keys(THEMES) },
     { name: 'font', label: 'Font', group: 'general', type: 'select', cards: ALL, options: FONTS },
     {
@@ -50,12 +60,14 @@ export const PARAMS = [
             stats: STATS_WIDTH,
             streak: STREAK_WIDTH,
             'top-langs': { ...LANGS_WIDTH, def: '' },
+            repo: REPO_WIDTH,
+            gist: GIST_WIDTH,
         },
     },
     { name: 'border_radius', label: 'Border radius', group: 'general', type: 'number', cards: ALL, spec: { def: 6, min: 0, max: 50 } },
     { name: 'hide_border', label: 'Hide border', group: 'general', type: 'bool', cards: ALL },
     { name: 'disable_animations', label: 'Disable animations', group: 'general', type: 'bool', cards: ALL },
-    { name: 'number_format', label: 'Number format', group: 'general', type: 'select', cards: DATA, options: ['short', 'long'] },
+    { name: 'number_format', label: 'Number format', group: 'general', type: 'select', cards: NUMBERED, options: ['short', 'long'] },
     {
         name: 'hide',
         label: 'Hide',
@@ -64,6 +76,9 @@ export const PARAMS = [
         cards: DATA,
         optionsByCard: { stats: STATS_HIDE, streak: STREAK_HIDE },
     },
+    // Own form values for the repo and gist cards, so they never mix with the stats/streak checkboxes.
+    { name: 'hide', key: 'hide_repo', label: 'Hide', group: 'general', type: 'checks', cards: ['repo'], optionsByCard: { repo: REPO_HIDE } },
+    { name: 'hide', key: 'hide_gist', label: 'Hide', group: 'general', type: 'checks', cards: ['gist'], optionsByCard: { gist: GIST_HIDE } },
     {
         name: 'hide',
         key: 'hide_langs', // own form value, so it never mixes with the stats/streak checkboxes above
@@ -79,13 +94,15 @@ export const PARAMS = [
     color('border_color', 'Border', ALL),
     color('text_color', 'Text', ALL),
     color('title_color', 'Title / big numbers', TITLED),
-    color('icon_color', 'Icons', DATA),
+    color('icon_color', 'Icons', ICONED),
     color('ring_color', 'Ring', DATA),
 
     { name: 'start_year', label: 'Start year', group: 'card', type: 'number', cards: ['calendar', 'streak'], spec: YEAR_SPEC, placeholder: 'account creation year' },
     { name: 'speed', label: 'Scroll speed (px/s)', group: 'card', type: 'number', cards: ['calendar'], spec: SPEED },
     { name: 'commits_year', label: 'Commits year', group: 'card', type: 'number', cards: ['stats'], spec: YEAR_SPEC, placeholder: 'last 12 months' },
     { name: 'include_all_commits', label: 'All-time commits', group: 'card', type: 'bool', cards: ['stats'] },
+    { name: 'show_owner', label: 'Show owner in title', group: 'card', type: 'bool', cards: INFO },
+    { name: 'description_lines', label: 'Description lines', group: 'card', type: 'number', cards: INFO, spec: DESC_LINES },
     { name: 'hide_title', label: 'Hide title', group: 'card', type: 'bool', cards: ['stats', 'top-langs'] },
     { name: 'hide_rank', label: 'Hide rank ring', group: 'card', type: 'bool', cards: ['stats'] },
     { name: 'rank_icon', label: 'Rank icon', group: 'card', type: 'select', cards: ['stats'], options: RANK_ICONS },

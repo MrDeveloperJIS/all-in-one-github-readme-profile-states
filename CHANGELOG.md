@@ -4,6 +4,11 @@ All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the project uses [Semantic Versioning](https://semver.org/).
 
+## [1.4.1] - 2026-11-22
+
+### Changed
+- Builder page: the favicon is now `favicon.png` instead of `favicon.svg`. The existing `img-src 'self' data:` Content-Security-Policy already allows it.
+
 ## [1.4.0] - 2026-11-22
 
 ### Added
